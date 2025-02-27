@@ -82,7 +82,7 @@ public class MoveReplicaHdfsTest extends AbstractMoveReplicaTestBase {
   // 6-Sep-2018
   // Commented 14-Oct-2018 @BadApple(bugUrl="https://issues.apache.org/jira/browse/SOLR-12028") //
   // added 20-Sep-2018
-  @BadApple(bugUrl = "https://issues.apache.org/jira/browse/SOLR-12028") // 14-Oct-2018
+  @AwaitsFix(bugUrl = "https://issues.apache.org/jira/browse/SOLR-12028") // 14-Oct-2018
   public void testNormalFailedMove() throws Exception {
     inPlaceMove = false;
     super.testFailedMove();

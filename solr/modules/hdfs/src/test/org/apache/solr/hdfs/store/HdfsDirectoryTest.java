@@ -112,11 +112,11 @@ public class HdfsDirectoryTest extends SolrTestCaseJ4 {
       directory.deleteFile(file);
     }
 
-    IndexOutput output = directory.createOutput("testing.test", new IOContext());
+    IndexOutput output = directory.createOutput("testing.test", IOContext.DEFAULT);
     output.writeInt(12345);
     output.close();
 
-    IndexInput input = directory.openInput("testing.test", new IOContext());
+    IndexInput input = directory.openInput("testing.test", IOContext.DEFAULT);
     assertEquals(12345, input.readInt());
     input.close();
 
@@ -126,7 +126,7 @@ public class HdfsDirectoryTest extends SolrTestCaseJ4 {
 
     assertEquals(4, directory.fileLength("testing.test"));
 
-    IndexInput input1 = directory.openInput("testing.test", new IOContext());
+    IndexInput input1 = directory.openInput("testing.test", IOContext.DEFAULT);
 
     IndexInput input2 = input1.clone();
     assertEquals(12345, input2.readInt());
@@ -147,13 +147,13 @@ public class HdfsDirectoryTest extends SolrTestCaseJ4 {
       directory.deleteFile(file);
     }
 
-    IndexOutput output = directory.createOutput("testing.test", new IOContext());
+    IndexOutput output = directory.createOutput("testing.test", IOContext.DEFAULT);
     output.writeInt(12345);
     output.close();
     directory.rename("testing.test", "testing.test.renamed");
     assertFalse(slowFileExists(directory, "testing.test"));
     assertTrue(slowFileExists(directory, "testing.test.renamed"));
-    IndexInput input = directory.openInput("testing.test.renamed", new IOContext());
+    IndexInput input = directory.openInput("testing.test.renamed", IOContext.DEFAULT);
     assertEquals(12345, input.readInt());
     assertEquals(input.getFilePointer(), input.length());
     input.close();
@@ -174,7 +174,7 @@ public class HdfsDirectoryTest extends SolrTestCaseJ4 {
   }
 
   private void testEof(String name, Directory directory, long length) throws IOException {
-    IndexInput input = directory.openInput(name, new IOContext());
+    IndexInput input = directory.openInput(name, IOContext.DEFAULT);
     input.seek(length);
     expectThrows(Exception.class, input::readByte);
   }
@@ -202,8 +202,8 @@ public class HdfsDirectoryTest extends SolrTestCaseJ4 {
   private void assertInputsEquals(String name, Directory fsDir, HdfsDirectory hdfs)
       throws IOException {
     int reads = random.nextInt(MAX_NUMBER_OF_READS);
-    IndexInput fsInput = fsDir.openInput(name, new IOContext());
-    IndexInput hdfsInput = hdfs.openInput(name, new IOContext());
+    IndexInput fsInput = fsDir.openInput(name, IOContext.DEFAULT);
+    IndexInput hdfsInput = hdfs.openInput(name, IOContext.DEFAULT);
     assertEquals(fsInput.length(), hdfsInput.length());
     int fileLength = (int) fsInput.length();
     for (int i = 0; i < reads; i++) {
@@ -233,8 +233,8 @@ public class HdfsDirectoryTest extends SolrTestCaseJ4 {
   private void createFile(String name, Directory fsDir, HdfsDirectory hdfs) throws IOException {
     int writes = random.nextInt(MAX_NUMBER_OF_WRITES);
     int fileLength = random.nextInt(MAX_FILE_SIZE - MIN_FILE_SIZE) + MIN_FILE_SIZE;
-    IndexOutput fsOutput = fsDir.createOutput(name, new IOContext());
-    IndexOutput hdfsOutput = hdfs.createOutput(name, new IOContext());
+    IndexOutput fsOutput = fsDir.createOutput(name, IOContext.DEFAULT);
+    IndexOutput hdfsOutput = hdfs.createOutput(name, IOContext.DEFAULT);
     for (int i = 0; i < writes; i++) {
       byte[] buf =
           new byte

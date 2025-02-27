@@ -77,7 +77,7 @@ import org.slf4j.LoggerFactory;
       BadHdfsThreadsFilter.class // hdfs currently leaks thread(s)
     })
 @LogLevel("org.apache.solr.cloud.*=DEBUG")
-@LuceneTestCase.BadApple(
+@LuceneTestCase.AwaitsFix(
     bugUrl = "https://issues.apache.org/jira/browse/SOLR-12028") // added 20-Jul-2018
 public class SharedFileSystemAutoReplicaFailoverTest extends AbstractFullDistribZkTestBase {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
