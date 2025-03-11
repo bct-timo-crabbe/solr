@@ -542,47 +542,7 @@ public final class SolrRangeQuery extends ExtendedQueryBase implements DocSetPro
     public ScorerSupplier scorerSupplier(LeafReaderContext context) throws IOException {
       Scorer sc = scorerInternal(context);
       if (sc == null) {
-        sc = new Scorer() {
-          @Override
-          public int docID() {
-            return -1;
-          }
-
-          @Override
-          public DocIdSetIterator iterator() {
-            return new DocIdSetIterator() {
-              @Override
-              public int docID() {
-                return -1;
-              }
-
-              @Override
-              public int nextDoc() throws IOException {
-                return DocIdSetIterator.NO_MORE_DOCS;
-              }
-
-              @Override
-              public int advance(int target) throws IOException {
-                return DocIdSetIterator.NO_MORE_DOCS;
-              }
-
-              @Override
-              public long cost() {
-                return 0;
-              }
-            };
-          }
-
-          @Override
-          public float getMaxScore(int upTo) throws IOException {
-            return 0;
-          }
-
-          @Override
-          public float score() throws IOException {
-            return 0;
-          }
-        };
+        return new MatchNoDocsQuery().createWeight(searcher, ScoreMode.COMPLETE, 0f).scorerSupplier(context);
       }
       final Scorer scorer = sc;
 
