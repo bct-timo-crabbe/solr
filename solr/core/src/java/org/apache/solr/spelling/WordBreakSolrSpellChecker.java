@@ -240,7 +240,8 @@ public class WordBreakSolrSpellChecker extends SolrSpellChecker {
                 sb.toString(),
                 tokenArrWithSeparators.get(firstTermIndex).startOffset(),
                 tokenArrWithSeparators.get(lastTermIndex).endOffset());
-        combineSuggestionList.add(new ResultEntry(token, cs.suggestion().string, cs.suggestion().freq));
+        combineSuggestionList.add(
+            new ResultEntry(token, cs.suggestion().string, cs.suggestion().freq));
       }
     }
 

@@ -35,9 +35,7 @@ public class TestHighlightDedupGrouping extends BaseDistributedSearchTestCase {
   private static final String shard_i1 = "shard_i1";
 
   @AfterClass
-  public static void afterClass() throws Exception {
-
-  }
+  public static void afterClass() throws Exception {}
 
   @Test
   @ShardsFixed(num = 2)

@@ -41,7 +41,15 @@ import org.apache.lucene.index.SlowCodecReaderWrapper;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.misc.store.HardlinkCopyDirectoryWrapper;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.ConstantScoreScorer;
+import org.apache.lucene.search.ConstantScoreWeight;
+import org.apache.lucene.search.DocIdSetIterator;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryVisitor;
+import org.apache.lucene.search.ScoreMode;
+import org.apache.lucene.search.ScorerSupplier;
+import org.apache.lucene.search.Weight;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.IOContext;
 import org.apache.lucene.store.Lock;
@@ -569,8 +577,8 @@ public class SolrIndexSplitter {
               log.error("### INVALID DELS {}", dels.cardinality());
             }
           }
-          return new SolrDefaultScorerSupplier(new ConstantScoreScorer(
-              score(), scoreMode, new BitSetIterator(set, set.length())));
+          return new SolrDefaultScorerSupplier(
+              new ConstantScoreScorer(score(), scoreMode, new BitSetIterator(set, set.length())));
         }
 
         @Override

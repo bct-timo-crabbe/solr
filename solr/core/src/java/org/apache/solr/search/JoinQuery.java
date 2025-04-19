@@ -22,14 +22,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.LeafReader;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.MultiPostingsEnum;
 import org.apache.lucene.index.PostingsEnum;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.ConstantScoreScorer;
+import org.apache.lucene.search.ConstantScoreWeight;
+import org.apache.lucene.search.DocIdSetIterator;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryVisitor;
+import org.apache.lucene.search.ScoreMode;
+import org.apache.lucene.search.ScorerSupplier;
+import org.apache.lucene.search.Weight;
 import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.FixedBitSet;
@@ -47,7 +55,7 @@ import org.apache.solr.util.RTimer;
 import org.apache.solr.util.RefCounted;
 import org.apache.solr.util.SolrDefaultScorerSupplier;
 
-class JoinQuery extends Query {
+class JoinQuery extends Query implements SolrSearcherRequirer {
   String fromField;
   String toField;
   // TODO: name is missleading here compared to JoinQParserPlugin usage - here it must be a core
@@ -79,7 +87,10 @@ class JoinQuery extends Query {
   }
 
   @Override
-  public void visit(QueryVisitor visitor) {}
+  public void visit(QueryVisitor visitor) {
+    QueryVisitor sub = visitor.getSubVisitor(BooleanClause.Occur.MUST, this);
+    q.visit(sub);
+  }
 
   @Override
   public Weight createWeight(IndexSearcher searcher, ScoreMode scoreMode, float boost)
@@ -181,7 +192,8 @@ class JoinQuery extends Query {
       if (readerSetIterator == null) {
         return null;
       }
-      return new SolrDefaultScorerSupplier(new ConstantScoreScorer(score(), scoreMode, readerSetIterator));
+      return new SolrDefaultScorerSupplier(
+          new ConstantScoreScorer(score(), scoreMode, readerSetIterator));
     }
 
     @Override

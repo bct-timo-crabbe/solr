@@ -362,7 +362,9 @@ public abstract class AbstractSpatialFieldType<T extends SpatialStrategy> extend
 
   @Override
   protected Query getSpecializedExistenceQuery(QParser parser, SchemaField field) {
-    PrefixQuery query = new PrefixQuery(new Term(field.getName(), ""), field.getType().getRewriteMethod(parser, field));
+    PrefixQuery query =
+        new PrefixQuery(
+            new Term(field.getName(), ""), field.getType().getRewriteMethod(parser, field));
     return query;
   }
 

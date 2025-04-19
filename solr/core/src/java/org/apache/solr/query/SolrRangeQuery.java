@@ -30,7 +30,25 @@ import org.apache.lucene.index.TermState;
 import org.apache.lucene.index.TermStates;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BulkScorer;
+import org.apache.lucene.search.ConstantScoreQuery;
+import org.apache.lucene.search.ConstantScoreScorer;
+import org.apache.lucene.search.ConstantScoreWeight;
+import org.apache.lucene.search.DocIdSet;
+import org.apache.lucene.search.DocIdSetIterator;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MatchNoDocsQuery;
+import org.apache.lucene.search.Matches;
+import org.apache.lucene.search.MatchesUtils;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryVisitor;
+import org.apache.lucene.search.ScoreMode;
+import org.apache.lucene.search.Scorer;
+import org.apache.lucene.search.ScorerSupplier;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.Weight;
 import org.apache.lucene.util.AttributeSource;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.DocIdSetBuilder;
@@ -42,7 +60,6 @@ import org.apache.solr.search.DocSetProducer;
 import org.apache.solr.search.DocSetUtil;
 import org.apache.solr.search.ExtendedQueryBase;
 import org.apache.solr.search.SolrIndexSearcher;
-import org.apache.solr.util.SolrDefaultScorerSupplier;
 import org.apache.solr.util.TestInjection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -367,8 +384,6 @@ public final class SolrRangeQuery extends ExtendedQueryBase implements DocSetPro
       this.scoreMode = scoreMode;
     }
 
-
-
     // See MultiTermQueryConstantScoreWrapper matches()
     @Override
     public Matches matches(LeafReaderContext context, int doc) throws IOException {
@@ -386,7 +401,6 @@ public final class SolrRangeQuery extends ExtendedQueryBase implements DocSetPro
               MatchesUtils.disjunction(
                   context, doc, query, query.field, query.getTermsEnum(context)));
     }
-
 
     /**
      * Try to collect terms from the given terms enum and return count=sum(df) for terms visited so
@@ -528,7 +542,8 @@ public final class SolrRangeQuery extends ExtendedQueryBase implements DocSetPro
       final SegState weightOrBitSet = getSegState(context);
       log.info("Query: " + getQuery());
       log.info("weight: " + weightOrBitSet.weight);
-      if (weightOrBitSet.weight!=null) log.info("weight's scorer: " + weightOrBitSet.weight.scorer(context));
+      if (weightOrBitSet.weight != null)
+        log.info("weight's scorer: " + weightOrBitSet.weight.scorer(context));
       log.info("set: " + weightOrBitSet.set);
       if (weightOrBitSet.weight != null) {
         Scorer ret = weightOrBitSet.weight.scorer(context);
@@ -542,7 +557,9 @@ public final class SolrRangeQuery extends ExtendedQueryBase implements DocSetPro
     public ScorerSupplier scorerSupplier(LeafReaderContext context) throws IOException {
       Scorer sc = scorerInternal(context);
       if (sc == null) {
-        return new MatchNoDocsQuery().createWeight(searcher, ScoreMode.COMPLETE, 0f).scorerSupplier(context);
+        return new MatchNoDocsQuery()
+            .createWeight(searcher, ScoreMode.COMPLETE, 0f)
+            .scorerSupplier(context);
       }
       final Scorer scorer = sc;
 

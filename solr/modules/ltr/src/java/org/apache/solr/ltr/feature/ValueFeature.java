@@ -140,6 +140,7 @@ public class ValueFeature extends Feature {
       }
     }
 
+    @Override
     public FeatureScorer featureScorer(LeafReaderContext context) throws IOException {
       if (featureValue != null) {
         return new ValueFeatureScorer(

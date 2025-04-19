@@ -22,8 +22,10 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import org.apache.lucene.index.DocValues;
 import org.apache.lucene.index.IndexReaderContext;
@@ -452,12 +454,13 @@ public class RankQueryTestPlugin extends QParserPlugin {
             }
 
             doc -= currentLeaf.docBase; // adjust for what segment this is in
-            leafComparator.setScorer(new Scorable() {
-              @Override
-              public float score() {
-                return score;
-              }
-            });
+            leafComparator.setScorer(
+                new Scorable() {
+                  @Override
+                  public float score() {
+                    return score;
+                  }
+                });
             leafComparator.copy(0, doc);
             Object val = comparator.value(0);
             if (null != ft) val = ft.marshalSortValue(val);
@@ -648,7 +651,7 @@ public class RankQueryTestPlugin extends QParserPlugin {
       }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private NamedList unmarshalSortValues(SortSpec sortSpec, NamedList sortFieldValues) {
       NamedList unmarshalledSortValsPerField = new NamedList<>();
 
@@ -657,7 +660,7 @@ public class RankQueryTestPlugin extends QParserPlugin {
       List<SchemaField> schemaFields = sortSpec.getSchemaFields();
       SortField[] sortFields = sortSpec.getSort().getSort();
 
-      int marshalledFieldNum = 0;
+      Iterator<Entry<String, Object>> sortFieldValuesIter = sortFieldValues.iterator();
       for (int sortFieldNum = 0; sortFieldNum < sortFields.length; sortFieldNum++) {
         final SortField sortField = sortFields[sortFieldNum];
         final SortField.Type type = sortField.getType();
@@ -666,13 +669,14 @@ public class RankQueryTestPlugin extends QParserPlugin {
         if (type == SortField.Type.SCORE || type == SortField.Type.DOC) continue;
 
         final String sortFieldName = sortField.getField();
-        final String valueFieldName = sortFieldValues.getName(marshalledFieldNum);
+        final Map.Entry<String, Object> sortFieldValuesEntry = sortFieldValuesIter.next();
+        final String valueFieldName = sortFieldValuesEntry.getKey();
         SolrTestCase.assertEquals(
             "sortFieldValues name key does not match expected SortField.getField",
             sortFieldName,
             valueFieldName);
 
-        List sortVals = (List) sortFieldValues.getVal(marshalledFieldNum);
+        List sortVals = (List) sortFieldValuesEntry.getValue();
 
         final SchemaField schemaField = schemaFields.get(sortFieldNum);
         if (null == schemaField) {
@@ -685,7 +689,6 @@ public class RankQueryTestPlugin extends QParserPlugin {
           }
           unmarshalledSortValsPerField.add(sortField.getField(), unmarshalledSortVals);
         }
-        marshalledFieldNum++;
       }
       return unmarshalledSortValsPerField;
     }

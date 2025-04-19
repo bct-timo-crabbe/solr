@@ -21,7 +21,6 @@ import static org.apache.solr.common.params.CommonParams.PATH;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PushbackInputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -39,8 +38,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.servlet.MultipartConfigElement;
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 import org.apache.commons.io.input.CloseShieldInputStream;
@@ -169,7 +168,7 @@ public class SolrRequestParsers {
     SolrParams params = parser.parseParamsAndFillStreams(req, streams);
 
     SolrQueryRequest sreq =
-        buildRequestFrom(core, params, streams, getRequestTimer(req), req, null);
+        buildRequestFrom(core, params, streams, getRequestTimer(req), req, req.getUserPrincipal());
 
     // Handlers and login will want to know the path. If it contains a ':'
     // the handler could use it for RESTful URLs
@@ -200,7 +199,7 @@ public class SolrRequestParsers {
       Collection<ContentStream> streams, // might be added to but caller shouldn't depend on it
       RTimerTree requestTimer,
       final HttpServletRequest req,
-      final Principal principal)
+      final Principal principal) // from req, if req was provided, otherwise from elsewhere
       throws Exception {
     // ensure streams is non-null and mutable so we can easily add to it
     if (streams == null) {
@@ -267,11 +266,7 @@ public class SolrRequestParsers {
         new SolrQueryRequestBase(core, params, requestTimer) {
           @Override
           public Principal getUserPrincipal() {
-            if (principal != null) {
-              return principal;
-            } else {
-              return req == null ? null : req.getUserPrincipal();
-            }
+            return principal;
           }
 
           @Override
@@ -600,26 +595,21 @@ public class SolrRequestParsers {
 
   /** The raw parser just uses the params directly */
   static class RawRequestParser implements SolrRequestParser {
+
+    // Methods that shouldn't have a body according to HTTP spec
+    private static Set<String> NO_BODY_METHODS = Set.of("GET", "HEAD", "DELETE");
+
     @Override
     public SolrParams parseParamsAndFillStreams(
         final HttpServletRequest req, ArrayList<ContentStream> streams) throws Exception {
-      // If we wrongly add a stream that actually has no content, then it can confuse
-      //  some of our code that sees a stream but has no content-type.
-      // If we wrongly don't add a stream, then obviously we'll miss data.
-      final ServletInputStream inputStream = req.getInputStream(); // don't close it
-      if (req.getContentLengthLong() >= 0
+      if (req.getContentLengthLong() > 0
           || req.getHeader("Transfer-Encoding") != null
-          || inputStream.available() > 0) {
-        streams.add(new HttpRequestContentStream(req, inputStream));
-      } else if (!req.getMethod().equals("GET")) { // GET shouldn't have data
-        // We're not 100% sure there is no data, so check by reading a byte (and put back).
-        PushbackInputStream pbInputStream = new PushbackInputStream(inputStream);
-        int b = pbInputStream.read();
-        if (b != -1) {
-          pbInputStream.unread(b); // put back
-          streams.add(new HttpRequestContentStream(req, pbInputStream));
-        }
+          || !NO_BODY_METHODS.contains(req.getMethod())) {
+        // If Content-Length > 0 OR Transfer-Encoding exists OR
+        // it's a method that can have a body (POST/PUT/PATCH etc)
+        streams.add(new HttpRequestContentStream(req, req.getInputStream()));
       }
+
       return parseQueryString(req.getQueryString());
     }
   }
@@ -763,7 +753,9 @@ public class SolrRequestParsers {
         // Protect container owned streams from being closed by us, see SOLR-8933
         in =
             FastInputStream.wrap(
-                in == null ? new CloseShieldInputStream(req.getInputStream()) : new CloseShieldInputStream(in));
+                in == null
+                    ? new CloseShieldInputStream(req.getInputStream())
+                    : new CloseShieldInputStream(in));
 
         final long bytesRead = parseFormDataContent(in, maxLength, charset, map, false);
         if (bytesRead == 0L && totalLength > 0L) {

@@ -148,6 +148,7 @@ public class FieldValueFeature extends Feature {
      * @return FeatureScorer for the current segment and field
      * @throws IOException as defined by abstract class Feature
      */
+    @Override
     public FeatureScorer featureScorer(LeafReaderContext context) throws IOException {
       if (schemaField != null
           && (!schemaField.stored() || useDocValuesForStored)

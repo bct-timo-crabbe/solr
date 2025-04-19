@@ -23,7 +23,16 @@ import org.apache.lucene.index.DocValues;
 import org.apache.lucene.index.LeafReader;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.SortedSetDocValues;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.Collector;
+import org.apache.lucene.search.ConstantScoreScorer;
+import org.apache.lucene.search.ConstantScoreWeight;
+import org.apache.lucene.search.DocIdSetIterator;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreMode;
+import org.apache.lucene.search.ScorerSupplier;
+import org.apache.lucene.search.TwoPhaseIterator;
+import org.apache.lucene.search.Weight;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.LongBitSet;
 import org.apache.solr.common.SolrException;
@@ -38,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * {@link JoinQuery} implementation using global (top-level) DocValues ordinals to efficiently
  * compare values in the "from" and "to" fields.
  */
-public class TopLevelJoinQuery extends JoinQuery {
+public class TopLevelJoinQuery extends JoinQuery implements SolrSearcherRequirer {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   public TopLevelJoinQuery(String fromField, String toField, String coreName, Query subQuery) {
@@ -52,6 +61,7 @@ public class TopLevelJoinQuery extends JoinQuery {
       log.debug(
           "Falling back to JoinQueryWeight because searcher [{}] is not the required SolrIndexSearcher",
           searcher);
+      // TODO This check no longer makes sense as super.createWeight *also* requires a SIS
       return super.createWeight(searcher, scoreMode, boost);
     }
 
@@ -93,31 +103,32 @@ public class TopLevelJoinQuery extends JoinQuery {
           }
 
           final int docBase = context.docBase;
-          return new SolrDefaultScorerSupplier(new ConstantScoreScorer(
-              this.score(),
-              scoreMode,
-              new TwoPhaseIterator(toApproximation) {
-                @Override
-                public boolean matches() throws IOException {
-                  final boolean hasDoc =
-                      topLevelToDocValues.advanceExact(docBase + approximation.docID());
-                  if (hasDoc) {
-                    for (long ord = topLevelToDocValues.nextOrd();
-                        ord != -1L;
-                        ord = topLevelToDocValues.nextOrd()) {
-                      if (toOrdBitSet.get(ord)) {
-                        return true;
+          return new SolrDefaultScorerSupplier(
+              new ConstantScoreScorer(
+                  this.score(),
+                  scoreMode,
+                  new TwoPhaseIterator(toApproximation) {
+                    @Override
+                    public boolean matches() throws IOException {
+                      final boolean hasDoc =
+                          topLevelToDocValues.advanceExact(docBase + approximation.docID());
+                      if (hasDoc) {
+                        for (long ord = topLevelToDocValues.nextOrd();
+                            ord != -1L;
+                            ord = topLevelToDocValues.nextOrd()) {
+                          if (toOrdBitSet.get(ord)) {
+                            return true;
+                          }
+                        }
                       }
+                      return false;
                     }
-                  }
-                  return false;
-                }
 
-                @Override
-                public float matchCost() {
-                  return 10.0F;
-                }
-              }));
+                    @Override
+                    public float matchCost() {
+                      return 10.0F;
+                    }
+                  }));
         }
 
         @Override

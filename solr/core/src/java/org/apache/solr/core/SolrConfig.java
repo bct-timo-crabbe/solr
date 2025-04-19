@@ -53,7 +53,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.index.IndexDeletionPolicy;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.util.Version;
 import org.apache.solr.client.solrj.io.stream.expr.Expressible;
@@ -274,7 +273,7 @@ public class SolrConfig implements MapSerializable {
         log.warn(
             "solrconfig.xml: <maxBooleanClauses> of {} is greater than global limit of {} and will have no effect {}",
             booleanQueryMaxClauseCount,
-                IndexSearcher.getMaxClauseCount(),
+            IndexSearcher.getMaxClauseCount(),
             "set 'maxBooleanClauses' in solr.xml to increase global limit");
       }
       prefixQueryMinPrefixLength =

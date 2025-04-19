@@ -84,6 +84,7 @@ public class OriginalScoreFeature extends Feature {
       return "OriginalScoreFeature [query:" + originalQuery.toString() + "]";
     }
 
+    @Override
     public FeatureScorer featureScorer(LeafReaderContext context) throws IOException {
 
       final Scorer originalScorer = w.scorer(context);

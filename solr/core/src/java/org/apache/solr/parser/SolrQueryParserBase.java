@@ -470,8 +470,7 @@ public abstract class SolrQueryParserBase extends QueryBuilder {
       // this modification a OR b would parsed as +a OR b
       BooleanClause c = clauses.get(clauses.size() - 1);
       if (!c.isProhibited())
-        clauses.set(
-            clauses.size() - 1, new BooleanClause(c.query(), BooleanClause.Occur.SHOULD));
+        clauses.set(clauses.size() - 1, new BooleanClause(c.query(), BooleanClause.Occur.SHOULD));
     }
 
     // We might have been passed a null query; the term might have been
@@ -600,7 +599,13 @@ public abstract class SolrQueryParserBase extends QueryBuilder {
    */
   protected Query newRegexpQuery(Term regexp) {
     SchemaField sf = schema.getField(regexp.field());
-    return new RegexpQuery(regexp, RegExp.ALL, 0, RegexpQuery.DEFAULT_PROVIDER, Operations.DEFAULT_DETERMINIZE_WORK_LIMIT, sf.getType().getRewriteMethod(parser, sf));
+    return new RegexpQuery(
+        regexp,
+        RegExp.ALL,
+        0,
+        RegexpQuery.DEFAULT_PROVIDER,
+        Operations.DEFAULT_DETERMINIZE_WORK_LIMIT,
+        sf.getType().getRewriteMethod(parser, sf));
   }
 
   @Override
@@ -681,7 +686,8 @@ public abstract class SolrQueryParserBase extends QueryBuilder {
    */
   protected Query newWildcardQuery(Term t) {
     SchemaField sf = schema.getField(t.field());
-    return new WildcardQuery(t, Operations.DEFAULT_DETERMINIZE_WORK_LIMIT, sf.getType().getRewriteMethod(parser, sf));
+    return new WildcardQuery(
+        t, Operations.DEFAULT_DETERMINIZE_WORK_LIMIT, sf.getType().getRewriteMethod(parser, sf));
   }
 
   /**
@@ -1030,13 +1036,10 @@ public abstract class SolrQueryParserBase extends QueryBuilder {
   }
 
   protected String analyzeIfMultitermTermText(String field, String part, FieldType fieldType) {
-
     if (part == null
         || !(fieldType instanceof TextField)
         || ((TextField) fieldType).getMultiTermAnalyzer() == null) return part;
 
-    SchemaField sf = schema.getFieldOrNull((field));
-    if (sf == null || !(fieldType instanceof TextField)) return part;
     BytesRef out =
         TextField.analyzeMultiTerm(field, part, ((TextField) fieldType).getMultiTermAnalyzer());
     return out == null ? part : out.utf8ToString();
@@ -1290,7 +1293,8 @@ public abstract class SolrQueryParserBase extends QueryBuilder {
     if (factory != null) {
       Term term = new Term(field, termStr);
       // fsa representing the query
-      Automaton automaton = WildcardQuery.toAutomaton(term, Operations.DEFAULT_DETERMINIZE_WORK_LIMIT);
+      Automaton automaton =
+          WildcardQuery.toAutomaton(term, Operations.DEFAULT_DETERMINIZE_WORK_LIMIT);
       // TODO: we should likely use the automaton to calculate shouldReverse, too.
       if (factory.shouldReverse(termStr)) {
         automaton = Operations.concatenate(automaton, Automata.makeChar(factory.getMarkerChar()));

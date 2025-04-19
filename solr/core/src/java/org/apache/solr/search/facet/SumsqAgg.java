@@ -19,7 +19,6 @@ package org.apache.solr.search.facet;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Date;
-import org.apache.lucene.index.SortedSetDocValues;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.util.BytesRef;
 import org.apache.solr.common.SolrException;
@@ -94,7 +93,7 @@ public class SumsqAgg extends SimpleAggValueSource {
     @Override
     protected void collectValues(int doc, int slot) throws IOException {
       long ord;
-      for (int o=0; o<values.docValueCount(); o++) {
+      for (int o = 0; o < values.docValueCount(); o++) {
         ord = values.nextOrd();
         BytesRef term = values.lookupOrd(ord);
         Object obj = sf.getType().toObject(sf, term);

@@ -18,10 +18,15 @@ package org.apache.solr.update;
 
 import java.io.IOException;
 import java.util.Objects;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.LeafReader;
 import org.apache.lucene.index.LeafReaderContext;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.Explanation;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryVisitor;
+import org.apache.lucene.search.ScoreMode;
+import org.apache.lucene.search.ScorerSupplier;
+import org.apache.lucene.search.Weight;
 import org.apache.solr.schema.IndexSchema;
 import org.apache.solr.uninverting.UninvertingReader;
 import org.apache.solr.util.SolrDefaultScorerSupplier;
@@ -73,7 +78,8 @@ final class DeleteByQueryWrapper extends Query {
 
       @Override
       public ScorerSupplier scorerSupplier(LeafReaderContext context) throws IOException {
-        return new SolrDefaultScorerSupplier(inner.scorer(privateContext.getIndexReader().leaves().get(0)));
+        return new SolrDefaultScorerSupplier(
+            inner.scorer(privateContext.getIndexReader().leaves().get(0)));
       }
 
       @Override

@@ -23,7 +23,15 @@ import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.queries.function.ValueSourceScorer;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.ConstantScoreScorer;
+import org.apache.lucene.search.ConstantScoreWeight;
+import org.apache.lucene.search.Explanation;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryVisitor;
+import org.apache.lucene.search.ScoreMode;
+import org.apache.lucene.search.ScorerSupplier;
+import org.apache.lucene.search.Weight;
 import org.apache.solr.util.SolrDefaultScorerSupplier;
 
 /** RangeFilter over a ValueSource. */
@@ -91,8 +99,7 @@ public class ValueSourceRangeFilter extends Query {
     public Explanation explain(LeafReaderContext context, int doc) throws IOException {
       FunctionValues functionValues = valueSource.getValues(vsContext, context);
       ValueSourceScorer scorer =
-          functionValues.getRangeScorer(
-              context, lowerVal, upperVal, includeLower, includeUpper);
+          functionValues.getRangeScorer(context, lowerVal, upperVal, includeLower, includeUpper);
       if (scorer.matches(doc)) {
         scorer.iterator().advance(doc);
         return Explanation.match(
@@ -109,7 +116,8 @@ public class ValueSourceRangeFilter extends Query {
           valueSource
               .getValues(vsContext, context)
               .getRangeScorer(context, lowerVal, upperVal, includeLower, includeUpper);
-      return new SolrDefaultScorerSupplier(new ConstantScoreScorer(score(), scoreMode, scorer.iterator()));
+      return new SolrDefaultScorerSupplier(
+          new ConstantScoreScorer(score(), scoreMode, scorer.twoPhaseIterator()));
     }
 
     @Override

@@ -19,7 +19,6 @@ package org.apache.solr.search;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryVisitor;

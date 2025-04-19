@@ -427,9 +427,11 @@ public class DocValuesFacets {
           int arrIdx = term - startTermIndex;
           if (arrIdx >= 0 && arrIdx < counts.length) counts[arrIdx]++;
         } while ((term = (int) si.nextOrd()) >= 0);*/
-        for (int o=0; o<si.docValueCount(); o++) {
+        for (int o = 0; o < si.docValueCount(); o++) {
           long ord = si.nextOrd();
-          if (ord == DocIdSetIterator.NO_MORE_DOCS) break; // nocommit this shouldn't have been needed, but without this the TestRandomDVFaceting is failing. Why?
+          if (ord == DocIdSetIterator.NO_MORE_DOCS)
+            break; // nocommit this shouldn't have been needed, but without this the
+          // TestRandomDVFaceting is failing. Why?
           int term = (int) ord;
           if (map != null) {
             term = (int) ordMap.get(term);
@@ -461,9 +463,11 @@ public class DocValuesFacets {
     int doc;
     while ((doc = disi.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
       if (si.advanceExact(doc)) {
-        for (int o=0; o<si.docValueCount(); o++) {
+        for (int o = 0; o < si.docValueCount(); o++) {
           long ord = si.nextOrd();
-          if (ord == DocIdSetIterator.NO_MORE_DOCS) break; // nocommit this shouldn't have been needed, but without this the TestRandomDVFaceting is failing. Why?
+          if (ord == DocIdSetIterator.NO_MORE_DOCS)
+            break; // nocommit this shouldn't have been needed, but without this the
+          // TestRandomDVFaceting is failing. Why?
           int term = (int) ord;
           segCounts[1 + term]++;
         }

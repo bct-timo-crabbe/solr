@@ -107,7 +107,8 @@ public class EnumField extends AbstractEnumField {
               min == null ? null : minValue,
               max == null ? null : maxValue,
               minInclusive,
-              maxInclusive, MultiTermQuery.CONSTANT_SCORE_REWRITE);
+              maxInclusive,
+              MultiTermQuery.CONSTANT_SCORE_REWRITE);
     }
 
     return query;

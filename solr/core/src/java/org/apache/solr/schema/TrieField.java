@@ -353,7 +353,8 @@ public class TrieField extends NumericFieldType {
                 min == null ? null : parseIntFromUser(field.getName(), min),
                 max == null ? null : parseIntFromUser(field.getName(), max),
                 minInclusive,
-                maxInclusive, MultiTermQuery.CONSTANT_SCORE_REWRITE);
+                maxInclusive,
+                MultiTermQuery.CONSTANT_SCORE_REWRITE);
         break;
       case FLOAT:
         query =
@@ -373,7 +374,8 @@ public class TrieField extends NumericFieldType {
                 min == null ? null : parseLongFromUser(field.getName(), min),
                 max == null ? null : parseLongFromUser(field.getName(), max),
                 minInclusive,
-                maxInclusive, MultiTermQuery.CONSTANT_SCORE_REWRITE);
+                maxInclusive,
+                MultiTermQuery.CONSTANT_SCORE_REWRITE);
         break;
       case DOUBLE:
         query =
@@ -393,7 +395,8 @@ public class TrieField extends NumericFieldType {
                 min == null ? null : DateMathParser.parseMath(null, min).getTime(),
                 max == null ? null : DateMathParser.parseMath(null, max).getTime(),
                 minInclusive,
-                maxInclusive, MultiTermQuery.CONSTANT_SCORE_REWRITE);
+                maxInclusive,
+                MultiTermQuery.CONSTANT_SCORE_REWRITE);
         break;
       default:
         throw new SolrException(

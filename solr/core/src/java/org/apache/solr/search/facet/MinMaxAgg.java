@@ -540,7 +540,7 @@ public class MinMaxAgg extends SimpleAggValueSource {
         newOrd = subDv.nextOrd();
       } else { // max
         long ord;
-        for (int o=0; o<subDv.docValueCount(); o++) {
+        for (int o = 0; o < subDv.docValueCount(); o++) {
           ord = subDv.nextOrd();
           newOrd = ord;
         }

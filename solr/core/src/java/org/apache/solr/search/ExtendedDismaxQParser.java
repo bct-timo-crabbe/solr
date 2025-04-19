@@ -1239,8 +1239,7 @@ public class ExtendedDismaxQParser extends QParser {
                 if (lst.get(n) instanceof BoostQuery boostQuery) {
                   BooleanQuery booleanQuery = (BooleanQuery) boostQuery.getQuery();
                   subs.add(
-                      new BoostQuery(
-                          booleanQuery.clauses().get(c).query(), boostQuery.getBoost()));
+                      new BoostQuery(booleanQuery.clauses().get(c).query(), boostQuery.getBoost()));
                 } else {
                   subs.add(((BooleanQuery) lst.get(n)).clauses().get(c).query());
                 }
@@ -1311,8 +1310,7 @@ public class ExtendedDismaxQParser extends QParser {
             if (firstBooleanClauses.get(c).query() instanceof BooleanQuery
                 && !allSameQueryStructure(
                     Arrays.asList(
-                        firstBooleanClauses.get(c).query(),
-                        nthBooleanClauses.get(c).query()))) {
+                        firstBooleanClauses.get(c).query(), nthBooleanClauses.get(c).query()))) {
               allSame = false;
               break;
             }

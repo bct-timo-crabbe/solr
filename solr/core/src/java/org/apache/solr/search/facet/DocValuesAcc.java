@@ -376,7 +376,7 @@ public abstract class DocValuesAcc extends SlotAcc {
     @Override
     protected void collectValues(int doc, int slot) throws IOException {
       long ord;
-      for (int o=0; o<values.docValueCount(); o++) {
+      for (int o = 0; o < values.docValueCount(); o++) {
         ord = values.nextOrd();
         BytesRef term = values.lookupOrd(ord);
         Object obj = sf.getType().toObject(sf, term);

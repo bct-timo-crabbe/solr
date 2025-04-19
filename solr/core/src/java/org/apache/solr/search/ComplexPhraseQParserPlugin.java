@@ -18,7 +18,6 @@ package org.apache.solr.search;
 
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.complexPhrase.ComplexPhraseQueryParser;
-import org.apache.lucene.search.MultiTermQuery;
 import org.apache.lucene.search.Query;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.SolrParams;
@@ -128,8 +127,8 @@ public class ComplexPhraseQParserPlugin extends QParserPlugin {
               try {
                 org.apache.lucene.search.Query wildcardQuery =
                     reverseAwareParser.getWildcardQuery(t.field(), t.text());
-                //TBD . We may not need this as the constructor is invoked with the rewite method
-//                setRewriteMethod(wildcardQuery);
+                // TBD . We may not need this as the constructor is invoked with the rewite method
+                //                setRewriteMethod(wildcardQuery);
                 return wildcardQuery;
               } catch (SyntaxError e) {
                 throw new RuntimeException(e);
@@ -144,7 +143,7 @@ public class ComplexPhraseQParserPlugin extends QParserPlugin {
               return query;
             }
 
-          /*  private Query setRewriteMethod(org.apache.lucene.search.Query query) {
+            /*  private Query setRewriteMethod(org.apache.lucene.search.Query query) {
               if (query instanceof MultiTermQuery) {
                 ((MultiTermQuery) query)
                     .setRewriteMethod(

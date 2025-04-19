@@ -143,10 +143,7 @@ abstract class AbstractMLTQParser extends QParser {
           originalBoost = bq.getBoost();
         }
         Float fieldBoost = boostFields.get(((TermQuery) q).getTerm().field());
-        q =
-            ((fieldBoost != null)
-                ? new BoostQuery(q, fieldBoost * originalBoost)
-                : clause.query());
+        q = ((fieldBoost != null) ? new BoostQuery(q, fieldBoost * originalBoost) : clause.query());
         newQ.add(q, clause.occur());
       }
       return QueryUtils.build(newQ, this);

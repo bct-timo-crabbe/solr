@@ -23,8 +23,21 @@ import java.util.Objects;
 import java.util.TreeSet;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.DocIdSet;
+import org.apache.lucene.search.DocIdSetIterator;
+import org.apache.lucene.search.Explanation;
+import org.apache.lucene.search.FieldExistsQuery;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryVisitor;
+import org.apache.lucene.search.ScoreMode;
+import org.apache.lucene.search.Scorer;
+import org.apache.lucene.search.ScorerSupplier;
+import org.apache.lucene.search.Weight;
+import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.BytesRefHash;
 import org.apache.lucene.util.FixedBitSet;
@@ -34,6 +47,7 @@ import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.BitDocSet;
 import org.apache.solr.search.DocSet;
 import org.apache.solr.search.SolrIndexSearcher;
+import org.apache.solr.search.SolrSearcherRequirer;
 import org.apache.solr.util.SolrDefaultScorerSupplier;
 
 /**
@@ -47,7 +61,7 @@ import org.apache.solr.util.SolrDefaultScorerSupplier;
  *
  * @lucene.experimental
  */
-public class GraphQuery extends Query {
+public class GraphQuery extends Query implements SolrSearcherRequirer {
 
   /** The inital node matching query */
   private Query q;
@@ -273,7 +287,8 @@ public class GraphQuery extends Query {
       DocIdSetIterator disi = resultSet.iterator(context);
       // create a scrorer on the result set, if results from right query are empty, use empty
       // iterator.
-      return new SolrDefaultScorerSupplier(new GraphScorer(this, disi == null ? DocIdSetIterator.empty() : disi, 1));
+      return new SolrDefaultScorerSupplier(
+          new GraphScorer(this, disi == null ? DocIdSetIterator.empty() : disi, 1));
     }
 
     @Override

@@ -36,7 +36,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.lucene.codecs.DocValuesProducer;
-import org.apache.lucene.index.*;
+import org.apache.lucene.index.DocValues;
+import org.apache.lucene.index.DocValuesSkipIndexType;
+import org.apache.lucene.index.DocValuesType;
+import org.apache.lucene.index.EmptyDocValuesProducer;
+import org.apache.lucene.index.FieldInfo;
+import org.apache.lucene.index.FieldInfos;
+import org.apache.lucene.index.FilterLeafReader;
+import org.apache.lucene.index.LeafReader;
+import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.index.MultiDocValues;
+import org.apache.lucene.index.NumericDocValues;
+import org.apache.lucene.index.OrdinalMap;
+import org.apache.lucene.index.SortedDocValues;
 import org.apache.lucene.queries.function.FunctionQuery;
 import org.apache.lucene.queries.function.FunctionValues;
 import org.apache.lucene.queries.function.ValueSource;
@@ -63,7 +75,6 @@ import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.StrUtils;
 import org.apache.solr.handler.component.QueryElevationComponent;
 import org.apache.solr.handler.component.ResponseBuilder;
-import org.apache.solr.request.LocalSolrQueryRequest;
 import org.apache.solr.request.SolrQueryRequest;
 import org.apache.solr.request.SolrRequestInfo;
 import org.apache.solr.schema.FieldType;
@@ -1589,7 +1600,7 @@ public class CollapsingQParserPlugin extends QParserPlugin {
     protected static final class BlockGroupState extends ScoreAndDoc {
       /**
        * Specific values have no intrinsic meaning, but can <em>only</em> be considered if the
-       * current docID in {@link #docID} is non-negative
+       * current docID is non-negative
        */
       private int currentGroup = 0;
 
@@ -2115,8 +2126,8 @@ public class CollapsingQParserPlugin extends QParserPlugin {
           minMaxFieldType = searcher.getSchema().getField(text).getType();
         } else {
           SolrParams params = new ModifiableSolrParams();
-          try (SolrQueryRequest request = new LocalSolrQueryRequest(searcher.getCore(), params)) {
-            FunctionQParser functionQParser = new FunctionQParser(text, null, null, request);
+          try (SolrQueryRequest request = SolrQueryRequest.wrapSearcher(searcher, params)) {
+            FunctionQParser functionQParser = new FunctionQParser(text, null, params, request);
             funcQuery = (FunctionQuery) functionQParser.parse();
           } catch (SyntaxError e) {
             throw new SolrException(SolrException.ErrorCode.BAD_REQUEST, e);

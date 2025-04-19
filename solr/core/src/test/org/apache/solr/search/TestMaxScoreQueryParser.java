@@ -89,8 +89,7 @@ public class TestMaxScoreQueryParser extends SolrTestCaseJ4 {
     clauses = clauses(q);
     assertEquals(1, clauses.length);
     assertTrue(clauses[0].query() instanceof DisjunctionMaxQuery);
-    assertEquals(
-        0.0, ((DisjunctionMaxQuery) clauses[0].query()).getTieBreakerMultiplier(), 1e-15);
+    assertEquals(0.0, ((DisjunctionMaxQuery) clauses[0].query()).getTieBreakerMultiplier(), 1e-15);
     Collection<Query> qa = ((DisjunctionMaxQuery) clauses[0].query()).getDisjuncts();
     assertEquals(2, qa.size());
     final Collection<String> qaStrings =
@@ -115,8 +114,7 @@ public class TestMaxScoreQueryParser extends SolrTestCaseJ4 {
     clauses = clauses(q);
     assertEquals(1, clauses.length);
     assertTrue(clauses[0].query() instanceof DisjunctionMaxQuery);
-    assertEquals(
-        0.5, ((DisjunctionMaxQuery) clauses[0].query()).getTieBreakerMultiplier(), 1e-15);
+    assertEquals(0.5, ((DisjunctionMaxQuery) clauses[0].query()).getTieBreakerMultiplier(), 1e-15);
   }
 
   @Test

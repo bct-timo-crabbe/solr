@@ -56,7 +56,7 @@ public class MultiValueTermOrdinalCollector extends SimpleCollector {
 
     if (topLevelDocValues.advanceExact(globalDoc)) {
       long ord;
-      for (int o=0; o<topLevelDocValues.docValueCount(); o++) {
+      for (int o = 0; o < topLevelDocValues.docValueCount(); o++) {
         ord = topLevelDocValues.nextOrd();
         topLevelDocValuesBitSet.set(ord);
       }

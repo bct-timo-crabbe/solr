@@ -17,7 +17,6 @@
 package org.apache.solr.query;
 
 import java.io.IOException;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.IndexSearcher;

@@ -19,9 +19,18 @@ package org.apache.solr.search;
 
 import java.io.IOException;
 import java.util.Objects;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.LeafReaderContext;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.DocIdSetIterator;
+import org.apache.lucene.search.Explanation;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Matches;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryVisitor;
+import org.apache.lucene.search.ScoreMode;
+import org.apache.lucene.search.Scorer;
+import org.apache.lucene.search.ScorerSupplier;
+import org.apache.lucene.search.TwoPhaseIterator;
+import org.apache.lucene.search.Weight;
 import org.apache.solr.util.SolrDefaultScorerSupplier;
 
 /** Wraps a {@link Query} to customize the {@link TwoPhaseIterator#matchCost()}. */
@@ -99,43 +108,44 @@ public class MatchCostQuery extends Query {
         if (tpi == null || tpi.matchCost() == matchCost) {
           return new SolrDefaultScorerSupplier(scorer); // needn't wrap/delegate
         }
-        return new SolrDefaultScorerSupplier(new Scorer() { // pass delegated weight
+        return new SolrDefaultScorerSupplier(
+            new Scorer() { // pass delegated weight
 
-          @Override
-          public TwoPhaseIterator twoPhaseIterator() {
-            return new TwoPhaseIterator(tpi.approximation()) {
               @Override
-              public boolean matches() throws IOException {
-                return tpi.matches();
+              public TwoPhaseIterator twoPhaseIterator() {
+                return new TwoPhaseIterator(tpi.approximation()) {
+                  @Override
+                  public boolean matches() throws IOException {
+                    return tpi.matches();
+                  }
+
+                  @Override
+                  public float matchCost() {
+                    return matchCost;
+                  }
+                };
               }
 
               @Override
-              public float matchCost() {
-                return matchCost;
+              public DocIdSetIterator iterator() {
+                return scorer.iterator();
               }
-            };
-          }
 
-          @Override
-          public DocIdSetIterator iterator() {
-            return scorer.iterator();
-          }
+              @Override
+              public float getMaxScore(int upTo) throws IOException {
+                return scorer.getMaxScore(upTo);
+              }
 
-          @Override
-          public float getMaxScore(int upTo) throws IOException {
-            return scorer.getMaxScore(upTo);
-          }
+              @Override
+              public float score() throws IOException {
+                return scorer.score();
+              }
 
-          @Override
-          public float score() throws IOException {
-            return scorer.score();
-          }
-
-          @Override
-          public int docID() {
-            return scorer.docID();
-          }
-        });
+              @Override
+              public int docID() {
+                return scorer.docID();
+              }
+            });
       }
     };
   }

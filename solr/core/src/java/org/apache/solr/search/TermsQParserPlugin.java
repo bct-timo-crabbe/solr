@@ -24,11 +24,29 @@ import java.util.regex.Pattern;
 import org.apache.lucene.document.SortedSetDocValuesField;
 import org.apache.lucene.index.DocValues;
 import org.apache.lucene.index.LeafReaderContext;
-import org.apache.lucene.index.PrefixCodedTerms;
 import org.apache.lucene.index.SortedSetDocValues;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.*;
-import org.apache.lucene.util.*;
+import org.apache.lucene.search.AutomatonQuery;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.ConstantScoreQuery;
+import org.apache.lucene.search.ConstantScoreScorer;
+import org.apache.lucene.search.ConstantScoreWeight;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MatchNoDocsQuery;
+import org.apache.lucene.search.MultiTermQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreMode;
+import org.apache.lucene.search.ScorerSupplier;
+import org.apache.lucene.search.TermInSetQuery;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TwoPhaseIterator;
+import org.apache.lucene.search.Weight;
+import org.apache.lucene.util.ArrayUtil;
+import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.BytesRefBuilder;
+import org.apache.lucene.util.BytesRefIterator;
+import org.apache.lucene.util.LongBitSet;
 import org.apache.lucene.util.automaton.Automata;
 import org.apache.lucene.util.automaton.Automaton;
 import org.apache.solr.common.SolrException;
@@ -223,29 +241,30 @@ public class TermsQParserPlugin extends QParserPlugin {
           }
 
           final int docBase = context.docBase;
-          return new SolrDefaultScorerSupplier(new ConstantScoreScorer(
-              this.score(),
-              scoreMode,
-              new TwoPhaseIterator(segmentDocValues) {
-                @Override
-                public boolean matches() throws IOException {
-                  topLevelDocValues.advanceExact(docBase + approximation.docID());
-                  for (long ord = topLevelDocValues.nextOrd();
-                      ord != -1L;
-                      ord = topLevelDocValues.nextOrd()) {
-                    if (topLevelTermOrdinals.get(ord)) {
-                      return true;
+          return new SolrDefaultScorerSupplier(
+              new ConstantScoreScorer(
+                  this.score(),
+                  scoreMode,
+                  new TwoPhaseIterator(segmentDocValues) {
+                    @Override
+                    public boolean matches() throws IOException {
+                      topLevelDocValues.advanceExact(docBase + approximation.docID());
+                      for (long ord = topLevelDocValues.nextOrd();
+                          ord != -1L;
+                          ord = topLevelDocValues.nextOrd()) {
+                        if (topLevelTermOrdinals.get(ord)) {
+                          return true;
+                        }
+                      }
+
+                      return false;
                     }
-                  }
 
-                  return false;
-                }
-
-                @Override
-                public float matchCost() {
-                  return 10.0F;
-                }
-              }));
+                    @Override
+                    public float matchCost() {
+                      return 10.0F;
+                    }
+                  }));
         }
 
         @Override

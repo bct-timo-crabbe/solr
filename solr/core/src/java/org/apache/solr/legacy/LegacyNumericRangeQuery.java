@@ -215,7 +215,14 @@ public final class LegacyNumericRangeQuery<T extends Number> extends MultiTermQu
       final boolean maxInclusive,
       RewriteMethod rewriteMethod) {
     return new LegacyNumericRangeQuery<>(
-        field, precisionStep, LegacyNumericType.LONG, min, max, minInclusive, maxInclusive, rewriteMethod);
+        field,
+        precisionStep,
+        LegacyNumericType.LONG,
+        min,
+        max,
+        minInclusive,
+        maxInclusive,
+        rewriteMethod);
   }
 
   /**
@@ -239,7 +246,8 @@ public final class LegacyNumericRangeQuery<T extends Number> extends MultiTermQu
         min,
         max,
         minInclusive,
-        maxInclusive, MultiTermQuery.CONSTANT_SCORE_REWRITE);
+        maxInclusive,
+        MultiTermQuery.CONSTANT_SCORE_REWRITE);
   }
 
   /**
@@ -258,7 +266,14 @@ public final class LegacyNumericRangeQuery<T extends Number> extends MultiTermQu
       final boolean maxInclusive,
       RewriteMethod rewriteMethod) {
     return new LegacyNumericRangeQuery<>(
-        field, precisionStep, LegacyNumericType.INT, min, max, minInclusive, maxInclusive, rewriteMethod);
+        field,
+        precisionStep,
+        LegacyNumericType.INT,
+        min,
+        max,
+        minInclusive,
+        maxInclusive,
+        rewriteMethod);
   }
 
   /**
@@ -282,7 +297,8 @@ public final class LegacyNumericRangeQuery<T extends Number> extends MultiTermQu
         min,
         max,
         minInclusive,
-        maxInclusive, MultiTermQuery.CONSTANT_SCORE_REWRITE);
+        maxInclusive,
+        MultiTermQuery.CONSTANT_SCORE_REWRITE);
   }
 
   /**
@@ -302,7 +318,14 @@ public final class LegacyNumericRangeQuery<T extends Number> extends MultiTermQu
       final boolean minInclusive,
       final boolean maxInclusive) {
     return new LegacyNumericRangeQuery<>(
-        field, precisionStep, LegacyNumericType.DOUBLE, min, max, minInclusive, maxInclusive, MultiTermQuery.CONSTANT_SCORE_REWRITE);
+        field,
+        precisionStep,
+        LegacyNumericType.DOUBLE,
+        min,
+        max,
+        minInclusive,
+        maxInclusive,
+        MultiTermQuery.CONSTANT_SCORE_REWRITE);
   }
 
   /**
@@ -327,7 +350,8 @@ public final class LegacyNumericRangeQuery<T extends Number> extends MultiTermQu
         min,
         max,
         minInclusive,
-        maxInclusive, MultiTermQuery.CONSTANT_SCORE_REWRITE);
+        maxInclusive,
+        MultiTermQuery.CONSTANT_SCORE_REWRITE);
   }
 
   /**
@@ -346,7 +370,14 @@ public final class LegacyNumericRangeQuery<T extends Number> extends MultiTermQu
       final boolean minInclusive,
       final boolean maxInclusive) {
     return new LegacyNumericRangeQuery<>(
-        field, precisionStep, LegacyNumericType.FLOAT, min, max, minInclusive, maxInclusive, MultiTermQuery.CONSTANT_SCORE_REWRITE);
+        field,
+        precisionStep,
+        LegacyNumericType.FLOAT,
+        min,
+        max,
+        minInclusive,
+        maxInclusive,
+        MultiTermQuery.CONSTANT_SCORE_REWRITE);
   }
 
   /**
@@ -371,7 +402,8 @@ public final class LegacyNumericRangeQuery<T extends Number> extends MultiTermQu
         min,
         max,
         minInclusive,
-        maxInclusive, MultiTermQuery.CONSTANT_SCORE_REWRITE);
+        maxInclusive,
+        MultiTermQuery.CONSTANT_SCORE_REWRITE);
   }
 
   @Override

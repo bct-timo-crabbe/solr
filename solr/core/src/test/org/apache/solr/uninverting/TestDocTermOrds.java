@@ -439,7 +439,7 @@ public class TestDocTermOrds extends SolrTestCase {
       final int[] answers = idToOrds[(int) docIDToID.longValue()];
       int upto = 0;
       long ord;
-      for (int o=0; o<iter.docValueCount(); o++) {
+      for (int o = 0; o < iter.docValueCount(); o++) {
         ord = iter.nextOrd();
         te.seekExact(ord);
         final BytesRef expected = termsArray[answers[upto++]];
@@ -495,7 +495,9 @@ public class TestDocTermOrds extends SolrTestCase {
 
   public void testNumericEncoded32() throws IOException {
     Directory dir = newDirectory();
-    IndexWriter iw = new IndexWriter(dir, newIndexWriterConfig(null));
+    IndexWriterConfig iwconfig = newIndexWriterConfig(null);
+    iwconfig.setMergePolicy(newLogMergePolicy());
+    IndexWriter iw = new IndexWriter(dir, iwconfig);
 
     Document doc = new Document();
     doc.add(new LegacyIntField("foo", 5, Field.Store.NO));
@@ -537,7 +539,9 @@ public class TestDocTermOrds extends SolrTestCase {
 
   public void testNumericEncoded64() throws IOException {
     Directory dir = newDirectory();
-    IndexWriter iw = new IndexWriter(dir, newIndexWriterConfig(null));
+    IndexWriterConfig iwconfig = newIndexWriterConfig(null);
+    iwconfig.setMergePolicy(newLogMergePolicy());
+    IndexWriter iw = new IndexWriter(dir, iwconfig);
 
     Document doc = new Document();
     doc.add(new LegacyLongField("foo", 5, Field.Store.NO));

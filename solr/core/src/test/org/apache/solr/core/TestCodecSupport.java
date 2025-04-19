@@ -20,10 +20,6 @@ import static org.apache.lucene.codecs.lucene90.Lucene90StoredFieldsFormat.MODE_
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Set;
-
-//TBD which codec to fall back to
-import org.apache.lucene.backward_codecs.lucene90.Lucene90Codec;
 import org.apache.lucene.codecs.Codec;
 import org.apache.lucene.codecs.lucene101.Lucene101Codec;
 import org.apache.lucene.codecs.perfield.PerFieldDocValuesFormat;
@@ -254,7 +250,7 @@ public class TestCodecSupport extends SolrTestCaseJ4 {
           new SolrCore(
               coreContainer,
               cd,
-              new ConfigSet("fakeConfigset", config, forceFetch -> schema, null, true));
+              new ConfigSet("fakeConfigset", config, forceFetch -> schema, null));
       assertNull(coreContainer.registerCore(cd, c, false, false));
       h.coreName = newCoreName;
       assertEquals(
