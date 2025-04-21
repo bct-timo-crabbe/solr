@@ -113,9 +113,8 @@ public class TopLevelJoinQuery extends JoinQuery implements SolrSearcherRequirer
                       final boolean hasDoc =
                           topLevelToDocValues.advanceExact(docBase + approximation.docID());
                       if (hasDoc) {
-                        for (long ord = topLevelToDocValues.nextOrd();
-                            ord != -1L;
-                            ord = topLevelToDocValues.nextOrd()) {
+                        for (int o = 0; o < topLevelToDocValues.docValueCount(); o++) {
+                          final var ord = topLevelToDocValues.nextOrd();
                           if (toOrdBitSet.get(ord)) {
                             return true;
                           }

@@ -16,6 +16,8 @@
  */
 package org.apache.solr.uninverting;
 
+import static org.apache.lucene.sandbox.facet.iterators.OrdinalIterator.NO_MORE_ORDS;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -799,7 +801,7 @@ public class DocTermOrds implements Accountable {
     public long nextOrd() {
       while (bufferUpto == bufferLength) {
         if (bufferLength < buffer.length) {
-          return NO_MORE_DOCS;
+          return NO_MORE_ORDS;
         } else {
           bufferLength = read(buffer);
           bufferUpto = 0;
@@ -919,7 +921,7 @@ public class DocTermOrds implements Accountable {
           return d;
         }
       }
-      return doc = -1; // nocommit is this the right fix?
+      return doc = NO_MORE_DOCS;
     }
 
     @Override

@@ -248,15 +248,16 @@ public class TermsQParserPlugin extends QParserPlugin {
                   new TwoPhaseIterator(segmentDocValues) {
                     @Override
                     public boolean matches() throws IOException {
-                      topLevelDocValues.advanceExact(docBase + approximation.docID());
-                      for (long ord = topLevelDocValues.nextOrd();
-                          ord != -1L;
-                          ord = topLevelDocValues.nextOrd()) {
-                        if (topLevelTermOrdinals.get(ord)) {
-                          return true;
+                      final var hasMatch =
+                          topLevelDocValues.advanceExact(docBase + approximation.docID());
+                      if (hasMatch) {
+                        for (int o = 0; o < topLevelDocValues.docValueCount(); o++) {
+                          final long ord = topLevelDocValues.nextOrd();
+                          if (topLevelTermOrdinals.get(ord)) {
+                            return true;
+                          }
                         }
                       }
-
                       return false;
                     }
 
